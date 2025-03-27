@@ -93,15 +93,33 @@
             document.getElementById('qrcode-container').appendChild(qrContainer);
         }
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
-    <div id="app" class="w-full max-w-lg p-6 bg-gray-800 rounded-xl shadow-lg">
-        <h2 class="text-2xl font-bold text-center mb-4">Admin Panel</h2>
-        <input id="teamName" type="text" placeholder="Team Name" class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded" />
-        <input id="teamLeader" type="text" placeholder="Team Leader" class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded" />
-        <textarea id="participants" placeholder="Participants (comma-separated)" class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded"></textarea>
-        <button onclick="generateQR()" class="w-full bg-blue-500 hover:bg-blue-600 p-2 rounded">Generate QR</button>
-        <div id="qrcode-container" class="mt-4 flex justify-center"></div>
+<body>
+    <div class="container mx-auto p-6">
+        <h2 class="text-2xl font-bold">Admin Panel</h2>
+        <input id="teamName" type="text" placeholder="Team Name" class="w-full p-2 mt-2 rounded" />
+        <input id="teamLeader" type="text" placeholder="Team Leader" class="w-full p-2 mt-2 rounded" />
+        <textarea id="participants" placeholder="Participants (comma-separated)" class="w-full p-2 mt-2 rounded"></textarea>
+        <button onclick="generateQR()" class="bg-blue-500 text-white p-2 rounded w-full mt-4">Generate QR</button>
+        <div id="qrcode-container" class="mt-4"></div>
     </div>
+    <div class="footer">Made by Aditya Raj | © Team Enthiran</div>
 </body>
 </html>
