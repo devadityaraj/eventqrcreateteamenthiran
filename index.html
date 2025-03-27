@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event QR System - Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <title>Admin - Generate QR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-        
+
         const firebaseConfig = {
             apiKey: "AIzaSyCRBIafHOkEkaggvjxwYI5TRTOZX6j8kOY",
             authDomain: "team-enthiran-event-login.firebaseapp.com",
@@ -17,149 +18,57 @@
             messagingSenderId: "548157754417",
             appId: "1:548157754417:web:2848554ddd919b47671910"
         };
-        
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
-        window.generateQR = async function() {
-            const teamName = document.getElementById('teamName').value;
-            const teamLeader = document.getElementById('teamLeader').value;
-            const participants = document.getElementById('participants').value.split(',');
+
+        function generateUniqueCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        async function generateQR() {
+            const teamName = document.getElementById("teamName").value;
+            const teamLeader = document.getElementById("teamLeader").value;
+            const participants = document.getElementById("participants").value.split(",");
             
             if (!teamName || !teamLeader || participants.length === 0) {
-                alert('Please fill all fields');
+                alert("Please fill all fields.");
                 return;
             }
-            
-            const uniqueCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const qrData = `${uniqueCode}|${teamName}`;
-            
-            await setDoc(doc(db, "teams", uniqueCode), {
-                teamName,
-                teamLeader,
-                participants,
-                checkedIn: false
-            });
-            
-            document.getElementById('qrcode-container').innerHTML = '';
-            
-            const qrContainer = document.createElement("div");
-            qrContainer.classList.add("qr-box");
-            
-            const title = document.createElement("p");
-            title.classList.add("qr-title");
-            title.innerText = `${teamName} - ${teamLeader}`;
-            
-            const qrCodeDiv = document.createElement("div");
-            new QRCode(qrCodeDiv, qrData);
-            
-            const codeText = document.createElement("p");
-            codeText.classList.add("qr-id");
-            codeText.innerText = `Team ID: ${uniqueCode}`;
-            
-            const downloadButton = document.createElement("button");
-            downloadButton.innerText = "Download QR";
-            downloadButton.classList.add("download-btn");
-            downloadButton.onclick = function() {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                const qrCanvas = qrCodeDiv.getElementsByTagName('canvas')[0];
-                
-                canvas.width = qrCanvas.width + 40;
-                canvas.height = qrCanvas.height + 80;
-                
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = "black";
-                ctx.font = "16px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText(`${teamName} - ${teamLeader}`, canvas.width / 2, 20);
-                ctx.drawImage(qrCanvas, 20, 30);
-                ctx.fillText(`Team ID: ${uniqueCode}`, canvas.width / 2, qrCanvas.height + 60);
-                
-                const link = document.createElement("a");
-                link.href = canvas.toDataURL("image/png");
-                link.download = `${teamName}_QR.png`;
-                link.click();
+
+            const teamID = generateUniqueCode();
+            const teamData = {
+                teamName, teamLeader, participants, teamID, checkedIn: false
             };
+
+            await setDoc(doc(db, "teams", teamID), teamData);
             
-            qrContainer.appendChild(title);
-            qrContainer.appendChild(qrCodeDiv);
-            qrContainer.appendChild(codeText);
-            qrContainer.appendChild(downloadButton);
-            
-            document.getElementById('qrcode-container').appendChild(qrContainer);
+            document.getElementById("qrContainer").innerHTML = "";
+            const qrCode = new QRCode(document.getElementById("qrContainer"), {
+                text: teamID,
+                width: 150,
+                height: 150
+            });
+
+            document.getElementById("qrDetails").innerHTML = `
+                <p class="text-lg font-semibold">Team: ${teamName}</p>
+                <p class="text-md">Leader: ${teamLeader}</p>
+                <p class="text-md">ID: ${teamID}</p>
+            `;
         }
     </script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #121212;
-            color: #fff;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.1);
-        }
-        input, textarea, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        input, textarea {
-            background: #333;
-            color: #fff;
-        }
-        button {
-            background-color: #ff4b5c;
-            color: white;
-            cursor: pointer;
-        }
-        .qr-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2c2c2c;
-            border-radius: 10px;
-            box-shadow: 0px 2px 5px rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-        .qr-title, .qr-id {
-            font-size: 14px;
-        }
-        .download-btn {
-            margin-top: 10px;
-            background-color: #1db954;
-        }
-        .footer {
-            margin-top: 20px;
-            padding: 10px;
-            background: #222;
-            color: white;
-            text-align: center;
-            font-size: 14px;
-            border-radius: 5px;
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <h2>Admin Panel</h2>
-        <input id="teamName" type="text" placeholder="Team Name" />
-        <input id="teamLeader" type="text" placeholder="Team Leader" />
-        <textarea id="participants" placeholder="Participants (comma-separated)"></textarea>
-        <button onclick="generateQR()">Generate QR</button>
-        <div id="qrcode-container"></div>
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg mt-10 w-11/12 sm:w-96">
+        <h2 class="text-xl font-bold">Generate QR Code</h2>
+        <input id="teamName" type="text" placeholder="Team Name" class="mt-2 p-2 w-full bg-gray-700 rounded text-white">
+        <input id="teamLeader" type="text" placeholder="Team Leader Name" class="mt-2 p-2 w-full bg-gray-700 rounded text-white">
+        <textarea id="participants" placeholder="Participants (comma-separated)" class="mt-2 p-2 w-full bg-gray-700 rounded text-white"></textarea>
+        <button onclick="generateQR()" class="bg-blue-500 px-4 py-2 rounded-md text-white mt-4 w-full">Generate QR</button>
+        
+        <div id="qrContainer" class="mt-4"></div>
+        <div id="qrDetails" class="mt-2 text-center"></div>
     </div>
-    <div class="footer">Made by Aditya Raj | © Team Enthiran</div>
+    <div class="mt-10 text-gray-400 text-sm">Made by Aditya Raj | © Team Enthiran</div>
 </body>
 </html>
